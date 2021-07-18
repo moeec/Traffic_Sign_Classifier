@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[3]:
-
-
 import tensorflow as tf
 from tensorflow.contrib.layers import flatten
 import pickle
