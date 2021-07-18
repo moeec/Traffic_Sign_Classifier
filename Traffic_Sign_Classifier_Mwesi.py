@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-get_ipython().run_line_magic('matplotlib', 'inline')
+%matplotlib inline
 
 
 training_file = "train.p"
@@ -41,24 +41,23 @@ print(y_train[index])
 EPOCHS = 10
 BATCH_SIZE = 128
 
-### Replace each question mark with the appropriate value. 
-### Use python, pandas or numpy methods rather than hard coding the results
 
-# TODO: Number of training examples
+# Number of training examples
 n_train = len(X_train)
 
-# TODO: Number of validation examples
+# Number of validation examples
 n_validation = len(X_valid)
 
-# TODO: Number of testing examples.
+# Number of testing examples.
 n_test = len(X_test)
 
-# TODO: What's the shape of an traffic sign image?
+# dtermine the shape of an traffic sign image?
 image_shape = X_train[0].shape
 
-# TODO: How many unique classes/labels there are in the dataset.
+# Number of unique classes/labels there are in the dataset.
 n_classes = 43
 
+# Print out all relavant information before processing.
 print("Number of training examples =", n_train)
 print("Number of testing examples =", n_test)
 print("Image data shape =", image_shape)
@@ -71,8 +70,6 @@ print("Number of classes =", n_classes)
 #Normalize images
 
 
-X_train, y_train = shuffle(X_train, y_train)
-X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=0)
 
 ### Define your architecture here.
 ### Feel free to use as many code cells as needed.
@@ -83,7 +80,9 @@ X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_siz
 ### the accuracy on the test set should be calculated and reported as well.
 ### Feel free to use as many code cells as needed.
 
-### Load the images and plot them here.
+
+
+
 ### Feel free to use as many code cells as needed.
 
 ### Run the predictions here and use the model to output the prediction for each image.
@@ -162,6 +161,18 @@ def evaluate(X_data, y_data):
         total_accuracy += (accuracy * len(batch_x))
     return total_accuracy / num_examples
 
+def plot_signs(signs, nrows = 1, ncols=1, labels=None):
+    
+    for sign in signs:
+        ax1, ax2 = plt.subplots(ncols=ncols, nrows=nrows, figsize=(12, 14))
+        f.tight_layout()
+        ax1.imshow(signs)
+        ax1.set_title('Original Image', fontsize=50)
+        ax2.imshow(signs)
+        ax2.set_title('Undistorted Image', fontsize=50)
+        plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
+    return()
+
 
 
 def normalize_grayscale(image_data):
@@ -175,6 +186,23 @@ def normalize_grayscale(image_data):
     grayscale_min = 0
     grayscale_max = 255
     return a + ( ( (image_data - grayscale_min)*(b - a) )/( grayscale_max - grayscale_min ) )
+
+
+### Load the images and plot them here.
+
+sign_text = np.genfromtxt('signnames.csv', skip_header=1, dtype=[('myint','i8'), ('mysring','S55')], delimiter=',')
+
+number_of_images_to_display = 10
+signs = {}
+labels = {}
+for i in range(number_of_images_to_display):
+    index = random.randint(0, n_train-1)
+    labels[i] = sign_text[y_train[index]][1].decode('ascii')
+#     print(name_values[y_train[index]][1].decode('ascii'))
+    signs[i] = X_train[index]
+    
+plot_signs(signs, 5, 2, labels)
+
 
 rate = 0.001
 
@@ -214,10 +242,3 @@ with tf.Session() as sess:
 
     test_accuracy = evaluate(X_test, y_test)
     print("Test Accuracy = {:.3f}".format(test_accuracy))
-
-
-# In[ ]:
-
-
-
-
