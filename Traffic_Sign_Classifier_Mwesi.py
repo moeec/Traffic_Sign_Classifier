@@ -6,6 +6,8 @@ import random
 import numpy as np
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
+import cv2
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 %matplotlib inline
 
@@ -164,11 +166,11 @@ def evaluate(X_data, y_data):
 def plot_signs(signs, nrows = 1, ncols=1, labels=None):
     
     for sign in signs:
-        ax1, ax2 = plt.subplots(ncols=ncols, nrows=nrows, figsize=(12, 14))
+        f, (ax1, ax2) = plt.subplots(ncols, nrows, figsize=(12, 14))
         f.tight_layout()
-        ax1.imshow(signs)
+        ax1.imshow(sign)
         ax1.set_title('Original Image', fontsize=50)
-        ax2.imshow(signs)
+        ax2.imshow(sign)
         ax2.set_title('Undistorted Image', fontsize=50)
         plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
     return()
@@ -198,7 +200,6 @@ labels = {}
 for i in range(number_of_images_to_display):
     index = random.randint(0, n_train-1)
     labels[i] = sign_text[y_train[index]][1].decode('ascii')
-#     print(name_values[y_train[index]][1].decode('ascii'))
     signs[i] = X_train[index]
     
 plot_signs(signs, 5, 2, labels)
