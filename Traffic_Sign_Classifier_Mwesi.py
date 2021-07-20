@@ -38,8 +38,8 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 50
-BATCH_SIZE = 128
+EPOCHS = 70
+BATCH_SIZE = 256
 
 # Number of training examples
 n_train = len(X_train)
