@@ -31,18 +31,15 @@ assert(len(X_train) == len(y_train))
 assert(len(X_valid) == len(y_valid))
 assert(len(X_test) == len(y_test))
 
-
 index = random.randint(0, len(X_train))
 image = X_train[index].squeeze()
 
-plt.figure(figsize = (1,1))
-plt.imshow(image)
-print(y_train[index])
+#code that has been commented below has been left here for debug purposes
+#plt.figure(figsize = (1,1))
+#plt.imshow(image)
 
-
-EPOCHS = 10
+EPOCHS = 50
 BATCH_SIZE = 128
-
 
 # Number of training examples
 n_train = len(X_train)
@@ -69,11 +66,7 @@ print("Number of classes =", n_classes)
 ### converting to grayscale, etc.
 ### Feel free to use as many code cells as needed.
 
-#Normalize images
 
-
-
-### Define your architecture here.
 ### Feel free to use as many code cells as needed.
 
 
@@ -91,13 +84,8 @@ print("Number of classes =", n_classes)
 ### Make sure to pre-process the images with the same pre-processing pipeline used earlier.
 ### Feel free to use as many code cells as needed.
 
-### Calculate the accuracy for these 5 new images. 
-### For example, if the model predicted 1 out of 5 signs correctly, it's 20% accurate on these new images.
 
-### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. 
-### Feel free to use as many code cells as needed.
-
-
+### Define your architecture here.
 ### Training my model here
 def LeNet(x):    
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
@@ -111,9 +99,10 @@ def LeNet(x):
 
     # SOLUTION: Activation.
     conv1 = tf.nn.relu(conv1)
+    conv1 = tf.nn.dropout((tf.nn.relu(conv1)), 0.65, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
-    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+    conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
     conv2_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma))
@@ -163,36 +152,29 @@ def evaluate(X_data, y_data):
         total_accuracy += (accuracy * len(batch_x))
     return total_accuracy / num_examples
 
-def plot_signs(signs, nrows = 1, ncols=1, labels=None):
-    
-    for sign in signs:
-        f, (ax1, ax2) = plt.subplots(ncols, nrows, figsize=(12, 14))
-        f.tight_layout()
-        ax1.imshow(sign)
-        ax1.set_title('Original Image', fontsize=50)
-        ax2.imshow(sign)
-        ax2.set_title('Undistorted Image', fontsize=50)
-        plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
+def plot_signs(signs, nrows = 1, ncols=1, labels=None):   
+    fig, axs = plt.subplots(ncols, nrows, figsize=(15, 8))
+    axs = axs.ravel()
+    for index, title in zip(range(len(signs)), signs):
+        axs[index].imshow(signs[title])
+        axs[index].set_title(labels[index], fontsize=10)
     return()
 
 
+def normalize_image(image):
 
-def normalize_grayscale(image_data):
-    """
-    Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
-    :param image_data: The image data to be normalized
-    :return: Normalized image data
-    """
-    a = 0.1
-    b = 0.9
-    grayscale_min = 0
-    grayscale_max = 255
-    return a + ( ( (image_data - grayscale_min)*(b - a) )/( grayscale_max - grayscale_min ) )
+    a = 0
+    b = 1
+    pixel_min = 0
+    pixel_max = 255
+    normalized_image = ((image - pixel_min)*(b - a))/(pixel_max - pixel_min)
+    return normalized_image
+
 
 
 ### Load the images and plot them here.
 
-sign_text = np.genfromtxt('signnames.csv', skip_header=1, dtype=[('myint','i8'), ('mysring','S55')], delimiter=',')
+sign_text = np.genfromtxt('signnames.csv', skip_header=1, dtype=[('myint','i8'), ('mystring','S55')], delimiter=',')
 
 number_of_images_to_display = 10
 signs = {}
@@ -200,10 +182,39 @@ labels = {}
 for i in range(number_of_images_to_display):
     index = random.randint(0, n_train-1)
     labels[i] = sign_text[y_train[index]][1].decode('ascii')
-    signs[i] = X_train[index]
-    
+    signs[i] = X_train[index]    
 plot_signs(signs, 5, 2, labels)
 
+
+# Finding unique elements in train, test and validation arrays
+      
+train_unique, counts_train = np.unique(y_train, return_counts=True)
+plt.bar(train_unique, counts_train)
+plt.grid()
+plt.title("\nTrain Dataset Unique Sign Counts")
+plt.show()
+
+test_unique, counts_test = np.unique(y_test, return_counts=True)
+plt.bar(test_unique, counts_test)
+plt.grid()
+plt.title("Test Dataset Unique Sign Counts")
+plt.show()
+
+valid_unique, counts_valid = np.unique(y_valid, return_counts=True)
+plt.bar(valid_unique, counts_valid)
+plt.grid()
+plt.title("Valid Dataset Unique Sign Counts")
+plt.show()
+
+#Normalize images
+X_train = normalize_image(X_train) 
+X_valid = normalize_image(X_valid) 
+X_test = normalize_image(X_test)
+
+x = tf.placeholder(tf.float32, (None, 32, 32, 3))
+y = tf.placeholder(tf.int32, (None))
+one_hot_y = tf.one_hot(y, 43)
+dropout = tf.placeholder(tf.float32)
 
 rate = 0.001
 
@@ -243,3 +254,12 @@ with tf.Session() as sess:
 
     test_accuracy = evaluate(X_test, y_test)
     print("Test Accuracy = {:.3f}".format(test_accuracy))
+
+    
+    
+    
+### Calculate the accuracy for these 5 new images. 
+### For example, if the model predicted 1 out of 5 signs correctly, it's 20% accurate on these new images.
+
+### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. 
+### Feel free to use as many code cells as needed.
