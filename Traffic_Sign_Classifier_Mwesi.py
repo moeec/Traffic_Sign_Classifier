@@ -98,8 +98,8 @@ def LeNet(x):
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
 
     # SOLUTION: Activation and dropout.
-    conv1 = tf.nn.relu(conv1)
-    conv1 = tf.nn.dropout((tf.nn.relu(conv1)), 0.65, noise_shape=None, seed=None, name=None)
+    conv1 = tf.nn.dropout((tf.nn.relu(conv1)), 0.7, noise_shape=None, seed=None, name=None)
+
 
     # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
     conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
@@ -126,8 +126,8 @@ def LeNet(x):
     fc1_b = tf.Variable(tf.zeros(120))
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
     
-    # SOLUTION: Activation.
-    fc1    = tf.nn.relu(fc1)
+    # SOLUTION: Activation & dropout
+    #fc1    = tf.nn.relu(fc1)
     fc1 = tf.nn.dropout((tf.nn.relu(fc1)), 0.7, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
@@ -137,6 +137,7 @@ def LeNet(x):
     
     # SOLUTION: Activation.
     fc2    = tf.nn.relu(fc2)
+    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.7, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
