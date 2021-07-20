@@ -136,7 +136,7 @@ def LeNet(x):
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
     # SOLUTION: Activation.
-    fc2    = tf.nn.relu(fc2)
+    #fc2    = tf.nn.relu(fc2)
     fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.7, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
