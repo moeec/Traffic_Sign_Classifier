@@ -38,8 +38,8 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 150
-BATCH_SIZE = 256
+EPOCHS = 200
+BATCH_SIZE = 512
 
 # Number of training examples
 n_train = len(X_train)
@@ -126,7 +126,7 @@ def LeNet(x):
     fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
     fc1_b = tf.Variable(tf.zeros(120))
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
-    fc1 = tf.nn.dropout((tf.matmul(fc0, fc1_W) + fc1_b), 0.7, noise_shape=None, seed=None, name=None)
+    fc1 = tf.nn.dropout((tf.matmul(fc0, fc1_W) + fc1_b), 0.65, noise_shape=None, seed=None, name=None)
     
     # SOLUTION: Activation & dropout
     #fc1    = tf.nn.relu(fc1)
@@ -138,7 +138,7 @@ def LeNet(x):
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
     # SOLUTION: Activation & Dropout
-    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.7, noise_shape=None, seed=None, name=None)
+    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.8, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
@@ -213,7 +213,7 @@ X_test = normalize_image(X_test)
 x = tf.placeholder(tf.float32, (None, 32, 32, 3))
 y = tf.placeholder(tf.int32, (None))
 one_hot_y = tf.one_hot(y, 43)
-dropout = tf.placeholder(tf.float32)
+
 
 rate = 0.001
 
