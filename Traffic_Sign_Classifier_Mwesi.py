@@ -130,7 +130,7 @@ def LeNet(x):
     
     # SOLUTION: Activation & dropout
     #fc1    = tf.nn.relu(fc1)
-    fc1 = tf.nn.dropout((tf.nn.relu(fc1)), 0.7, noise_shape=None, seed=None, name=None)
+    fc1 = tf.nn.dropout((tf.nn.relu(fc1)), 0.8, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma))
@@ -168,15 +168,8 @@ def plot_signs(signs, nrows = 1, ncols=1, labels=None):
 
 
 def normalize_image(image):
-
-    a = 0
-    b = 1
-    pixel_min = 0
-    pixel_max = 255
-    normalized_image = ((image - pixel_min)*(b - a))/(pixel_max - pixel_min)
+    normalized_image = np.array(image / 255.0 - 0.5 )
     return normalized_image
-
-
 
 ### Load the images and plot them here.
 
