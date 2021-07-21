@@ -38,7 +38,7 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 70
+EPOCHS = 150
 BATCH_SIZE = 256
 
 # Number of training examples
@@ -117,14 +117,16 @@ def LeNet(x):
 
     # SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.
     conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-
+    tf.nn.dropout((conv2), 0.7, noise_shape=None, seed=None, name=None)
     # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
     fc0   = flatten(conv2)
+    tf.nn.dropout((flatten(conv2)), 0.5, noise_shape=None, seed=None, name=None)
     
     # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
     fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
     fc1_b = tf.Variable(tf.zeros(120))
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
+    fc1 = tf.nn.dropout((tf.matmul(fc0, fc1_W) + fc1_b), 0.7, noise_shape=None, seed=None, name=None)
     
     # SOLUTION: Activation & dropout
     #fc1    = tf.nn.relu(fc1)
@@ -135,8 +137,7 @@ def LeNet(x):
     fc2_b  = tf.Variable(tf.zeros(84))
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
-    # SOLUTION: Activation.
-    #fc2    = tf.nn.relu(fc2)
+    # SOLUTION: Activation & Dropout
     fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.7, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
@@ -268,3 +269,4 @@ with tf.Session() as sess:
 
 ### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. 
 ### Feel free to use as many code cells as needed.
+
