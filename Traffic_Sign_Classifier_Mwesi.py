@@ -38,7 +38,7 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 200
+EPOCHS = 150
 BATCH_SIZE = 512
 
 # Number of training examples
@@ -98,7 +98,7 @@ def LeNet(x):
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
 
     # SOLUTION: Activation and dropout.
-    conv1 = tf.nn.dropout((tf.nn.relu(conv1)), 0.7, noise_shape=None, seed=None, name=None)
+    conv1 = tf.nn.dropout((tf.nn.relu(conv1)), 0.9, noise_shape=None, seed=None, name=None)
 
 
     # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
@@ -120,7 +120,7 @@ def LeNet(x):
     tf.nn.dropout((conv2), 0.7, noise_shape=None, seed=None, name=None)
     # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
     fc0   = flatten(conv2)
-    tf.nn.dropout((flatten(conv2)), 0.5, noise_shape=None, seed=None, name=None)
+    tf.nn.dropout((flatten(conv2)), 0.7, noise_shape=None, seed=None, name=None)
     
     # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
     fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
@@ -130,7 +130,7 @@ def LeNet(x):
     
     # SOLUTION: Activation & dropout
     #fc1    = tf.nn.relu(fc1)
-    fc1 = tf.nn.dropout((tf.nn.relu(fc1)), 0.8, noise_shape=None, seed=None, name=None)
+    fc1 = tf.nn.dropout((tf.nn.relu(fc1)), 0.99, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma))
@@ -138,7 +138,7 @@ def LeNet(x):
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
     # SOLUTION: Activation & Dropout
-    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.8, noise_shape=None, seed=None, name=None)
+    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.70, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
