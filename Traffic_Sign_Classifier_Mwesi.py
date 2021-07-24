@@ -214,7 +214,7 @@ y = tf.placeholder(tf.int32, (None))
 one_hot_y = tf.one_hot(y, 43)
 
 
-rate = 0.005
+rate = 0.0045
 
 logits = LeNet(x)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y, logits=logits)
