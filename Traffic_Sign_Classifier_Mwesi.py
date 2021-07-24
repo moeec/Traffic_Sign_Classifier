@@ -38,7 +38,7 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 50
+EPOCHS = 150
 BATCH_SIZE = 512
 
 # Number of training examples
@@ -98,12 +98,12 @@ def LeNet(x):
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
 
     # SOLUTION: Activation and dropout.
-    conv1 = tf.nn.dropout((tf.nn.relu(conv1)), 0.9, noise_shape=None, seed=None, name=None)
+    conv1 = tf.nn.dropout((tf.nn.relu(conv1)), 0.9, noise_shape=None, seed=1, name=None)
 
 
     # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
     conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-    conv1 = tf.nn.dropout((conv1), 0.9, noise_shape=None, seed=None, name=None)
+    conv1 = tf.nn.dropout((conv1), 0.99, noise_shape=None, seed=None, name=None)
     
 
     # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
@@ -118,10 +118,10 @@ def LeNet(x):
 
     # SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.
     conv2 = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-    tf.nn.dropout((conv2), 0.7, noise_shape=None, seed=None, name=None)
+    tf.nn.dropout((conv2), 0.99, noise_shape=None, seed=None, name=None)
     # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
     fc0   = flatten(conv2)
-    tf.nn.dropout((flatten(conv2)), 0.9, noise_shape=None, seed=None, name=None)
+    tf.nn.dropout((flatten(conv2)), 0.9, noise_shape=None, seed=1, name=None)
     
     # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
     fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
@@ -131,7 +131,7 @@ def LeNet(x):
     
     # SOLUTION: Activation & dropout
     #fc1    = tf.nn.relu(fc1)
-    fc1 = tf.nn.dropout((tf.nn.relu(fc1)), 0.99, noise_shape=None, seed=None, name=None)
+    fc1 = tf.nn.dropout((tf.nn.relu(fc1)), 0.99, noise_shape=None, seed=1, name=None)
 
     # SOLUTION: Layer 4: Fully Connected. Input = 120. Output = 84.
     fc2_W  = tf.Variable(tf.truncated_normal(shape=(120, 84), mean = mu, stddev = sigma))
@@ -139,7 +139,7 @@ def LeNet(x):
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
     # SOLUTION: Activation & Dropout
-    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.6, noise_shape=None, seed=None, name=None)
+    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.99, noise_shape=None, seed=2, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
@@ -178,6 +178,26 @@ def gray_scale(image):
     gray_scale_image = np.sum(image/3, axis=3, keepdims=True)
     return gray_scale_image
 
+def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=1):
+    # Here make sure to preprocess your image_input in a way your network expects
+    # with size, normalization, ect if needed
+    # image_input =
+    # Note: x should be the same name as your network's tensorflow data placeholder variable
+    # If you get an error tf_activation is not defined it may be having trouble accessing the variable from inside a function
+    activation = tf_activation.eval(session=sess,feed_dict={x : image_input})
+    featuremaps = activation.shape[3]
+    plt.figure(plt_num, figsize=(15,15))
+    for featuremap in range(featuremaps):
+        plt.subplot(6,8, featuremap+1) # sets the number of feature maps to show on each row and column
+        plt.title('FeatureMap ' + str(featuremap)) # displays the feature map number
+        if activation_min != -1 & activation_max != -1:
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin =activation_min, vmax=activation_max, cmap="gray")
+        elif activation_max != -1:
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmax=activation_max, cmap="gray")
+        elif activation_min !=-1:
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin=activation_min, cmap="gray")
+        else:
+            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", cmap="gray")
 
 # Finding unique elements in train, test and validation arrays
       
