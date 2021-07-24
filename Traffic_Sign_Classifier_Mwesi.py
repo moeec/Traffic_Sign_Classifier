@@ -127,7 +127,7 @@ def LeNet(x):
     fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
     fc1_b = tf.Variable(tf.zeros(120))
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
-    fc1 = tf.nn.dropout((tf.matmul(fc0, fc1_W) + fc1_b), 0.99, noise_shape=None, seed=None, name=None)
+    fc1 = tf.nn.dropout((tf.matmul(fc0, fc1_W) + fc1_b), 0.99, noise_shape=None, seed=1, name=None)
     
     # SOLUTION: Activation & dropout
     #fc1    = tf.nn.relu(fc1)
