@@ -38,7 +38,7 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 150
+EPOCHS = 50
 BATCH_SIZE = 512
 
 # Number of training examples
@@ -93,7 +93,7 @@ def LeNet(x):
     sigma = 0.1
     
     # SOLUTION: Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
-    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma))
+    conv1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean = mu, stddev = sigma))
     conv1_b = tf.Variable(tf.zeros(6))
     conv1   = tf.nn.conv2d(x, conv1_W, strides=[1, 1, 1, 1], padding='VALID') + conv1_b
 
@@ -103,7 +103,7 @@ def LeNet(x):
 
     # SOLUTION: Pooling. Input = 28x28x6. Output = 14x14x6.
     conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-   
+    conv1 = tf.nn.dropout((conv1), 0.9, noise_shape=None, seed=None, name=None)
     
 
     # SOLUTION: Layer 2: Convolutional. Output = 10x10x16.
@@ -113,6 +113,7 @@ def LeNet(x):
     
     # SOLUTION: Activation.
     conv2 = tf.nn.relu(conv2)
+    #conv2 = tf.nn.dropout((conv2), 0.1, noise_shape=None, seed=None, name=None)
     
 
     # SOLUTION: Pooling. Input = 10x10x16. Output = 5x5x16.
@@ -120,13 +121,13 @@ def LeNet(x):
     tf.nn.dropout((conv2), 0.7, noise_shape=None, seed=None, name=None)
     # SOLUTION: Flatten. Input = 5x5x16. Output = 400.
     fc0   = flatten(conv2)
-    tf.nn.dropout((flatten(conv2)), 0.7, noise_shape=None, seed=None, name=None)
+    tf.nn.dropout((flatten(conv2)), 0.9, noise_shape=None, seed=None, name=None)
     
     # SOLUTION: Layer 3: Fully Connected. Input = 400. Output = 120.
     fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean = mu, stddev = sigma))
     fc1_b = tf.Variable(tf.zeros(120))
     fc1   = tf.matmul(fc0, fc1_W) + fc1_b
-    fc1 = tf.nn.dropout((tf.matmul(fc0, fc1_W) + fc1_b), 0.65, noise_shape=None, seed=None, name=None)
+    fc1 = tf.nn.dropout((tf.matmul(fc0, fc1_W) + fc1_b), 0.99, noise_shape=None, seed=None, name=None)
     
     # SOLUTION: Activation & dropout
     #fc1    = tf.nn.relu(fc1)
@@ -138,7 +139,7 @@ def LeNet(x):
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
     # SOLUTION: Activation & Dropout
-    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.70, noise_shape=None, seed=None, name=None)
+    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.6, noise_shape=None, seed=None, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
@@ -168,21 +169,14 @@ def plot_signs(signs, nrows = 1, ncols=1, labels=None):
 
 
 def normalize_image(image):
-    normalized_image = np.array(image / 255.0 - 0.5 )
-    return normalized_image
+    #normalized_image = np.array(image / 255.0 - 0.5 )
+    return (image - 128.) / 128.
+    #return normalized_image
 
-### Load the images and plot them here.
-
-sign_text = np.genfromtxt('signnames.csv', skip_header=1, dtype=[('myint','i8'), ('mystring','S55')], delimiter=',')
-
-number_of_images_to_display = 10
-signs = {}
-labels = {}
-for i in range(number_of_images_to_display):
-    index = random.randint(0, n_train-1)
-    labels[i] = sign_text[y_train[index]][1].decode('ascii')
-    signs[i] = X_train[index]    
-plot_signs(signs, 5, 2, labels)
+def gray_scale(image):
+# Convert to grayscale
+    gray_scale_image = np.sum(image/3, axis=3, keepdims=True)
+    return gray_scale_image
 
 
 # Finding unique elements in train, test and validation arrays
@@ -210,12 +204,17 @@ X_train = normalize_image(X_train)
 X_valid = normalize_image(X_valid) 
 X_test = normalize_image(X_test)
 
-x = tf.placeholder(tf.float32, (None, 32, 32, 3))
+#Gray Scale images
+X_train = gray_scale(X_train) 
+X_valid = gray_scale(X_valid) 
+X_test = gray_scale(X_test)
+
+x = tf.placeholder(tf.float32, (None, 32, 32, 1))
 y = tf.placeholder(tf.int32, (None))
 one_hot_y = tf.one_hot(y, 43)
 
 
-rate = 0.001
+rate = 0.005
 
 logits = LeNet(x)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y, logits=logits)
