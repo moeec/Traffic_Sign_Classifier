@@ -38,8 +38,8 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 150
-BATCH_SIZE = 512
+EPOCHS = 50
+BATCH_SIZE = 20
 
 # Number of training examples
 n_train = len(X_train)
@@ -56,37 +56,14 @@ image_shape = X_train[0].shape
 # Number of unique classes/labels there are in the dataset.
 n_classes = 43
 
-# Print out all relavant information before processing.
+# Printing out all relavant information before processing.
 print("Number of training examples =", n_train)
 print("Number of testing examples =", n_test)
 print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
-### Preprocess the data here. It is required to normalize the data. Other preprocessing steps could include 
-### converting to grayscale, etc.
-### Feel free to use as many code cells as needed.
 
-
-### Feel free to use as many code cells as needed.
-
-
-
-### Once a final model architecture is selected, 
-### the accuracy on the test set should be calculated and reported as well.
-### Feel free to use as many code cells as needed.
-
-
-
-
-### Feel free to use as many code cells as needed.
-
-### Run the predictions here and use the model to output the prediction for each image.
-### Make sure to pre-process the images with the same pre-processing pipeline used earlier.
-### Feel free to use as many code cells as needed.
-
-
-### Define your architecture here.
-### Training my model here
+### Training my model using the following architecture.
 def LeNet(x):    
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
     mu = 0
@@ -139,7 +116,7 @@ def LeNet(x):
     fc2    = tf.matmul(fc1, fc2_W) + fc2_b
     
     # SOLUTION: Activation & Dropout
-    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.99, noise_shape=None, seed=2, name=None)
+    fc2 = tf.nn.dropout((tf.nn.relu(fc2)), 0.99, noise_shape=None, seed=5, name=None)
 
     # SOLUTION: Layer 5: Fully Connected. Input = 84. Output = 10.
     fc3_W  = tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
@@ -169,55 +146,35 @@ def plot_signs(signs, nrows = 1, ncols=1, labels=None):
 
 
 def normalize_image(image):
-    #normalized_image = np.array(image / 255.0 - 0.5 )
     return (image - 128.) / 128.
-    #return normalized_image
+   
 
 def gray_scale(image):
 # Convert to grayscale
     gray_scale_image = np.sum(image/3, axis=3, keepdims=True)
     return gray_scale_image
 
-def outputFeatureMap(image_input, tf_activation, activation_min=-1, activation_max=-1 ,plt_num=1):
-    # Here make sure to preprocess your image_input in a way your network expects
-    # with size, normalization, ect if needed
-    # image_input =
-    # Note: x should be the same name as your network's tensorflow data placeholder variable
-    # If you get an error tf_activation is not defined it may be having trouble accessing the variable from inside a function
-    activation = tf_activation.eval(session=sess,feed_dict={x : image_input})
-    featuremaps = activation.shape[3]
-    plt.figure(plt_num, figsize=(15,15))
-    for featuremap in range(featuremaps):
-        plt.subplot(6,8, featuremap+1) # sets the number of feature maps to show on each row and column
-        plt.title('FeatureMap ' + str(featuremap)) # displays the feature map number
-        if activation_min != -1 & activation_max != -1:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin =activation_min, vmax=activation_max, cmap="gray")
-        elif activation_max != -1:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmax=activation_max, cmap="gray")
-        elif activation_min !=-1:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", vmin=activation_min, cmap="gray")
-        else:
-            plt.imshow(activation[0,:,:, featuremap], interpolation="nearest", cmap="gray")
-
-# Finding unique elements in train, test and validation arrays
+# Finding/Displaying Distribution of unique elements in train, test and validation arrays
       
 train_unique, counts_train = np.unique(y_train, return_counts=True)
 plt.bar(train_unique, counts_train)
 plt.grid()
-plt.title("\nTrain Dataset Unique Sign Counts")
+plt.title("\nTrain Dataset Distribution")
 plt.show()
 
 test_unique, counts_test = np.unique(y_test, return_counts=True)
 plt.bar(test_unique, counts_test)
 plt.grid()
-plt.title("Test Dataset Unique Sign Counts")
+plt.title("Test Dataset Distribution")
 plt.show()
 
 valid_unique, counts_valid = np.unique(y_valid, return_counts=True)
 plt.bar(valid_unique, counts_valid)
 plt.grid()
-plt.title("Valid Dataset Unique Sign Counts")
+plt.title("Valid Dataset Distribution")
 plt.show()
+
+### Pre-processing pipeline
 
 #Normalize images
 X_train = normalize_image(X_train) 
@@ -234,7 +191,7 @@ y = tf.placeholder(tf.int32, (None))
 one_hot_y = tf.one_hot(y, 43)
 
 
-rate = 0.0045
+rate = 0.00065
 
 logits = LeNet(x)
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y, logits=logits)
@@ -272,11 +229,10 @@ with tf.Session() as sess:
 
     test_accuracy = evaluate(X_test, y_test)
     print("Test Accuracy = {:.3f}".format(test_accuracy))
+   
+    
+### Calculate the accuracy for these 5 new images.
 
-    
-    
-    
-### Calculate the accuracy for these 5 new images. 
 ### For example, if the model predicted 1 out of 5 signs correctly, it's 20% accurate on these new images.
 
 ### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. 
