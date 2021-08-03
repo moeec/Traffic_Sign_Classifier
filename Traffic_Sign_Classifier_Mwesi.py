@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import cv2
+import glob
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 %matplotlib inline
@@ -154,6 +155,21 @@ def gray_scale(image):
     gray_scale_image = np.sum(image/3, axis=3, keepdims=True)
     return gray_scale_image
 
+
+### Load the images and plot them here.
+
+sign_text = np.genfromtxt('signnames.csv', skip_header=1, dtype=[('myint','i8'), ('mystring','S55')], delimiter=',')
+
+number_of_images_to_display = 20
+signs = {}
+labels = {}
+for i in range(number_of_images_to_display):
+    index = random.randint(0, n_train-1)
+    labels[i] = sign_text[y_train[index]][1].decode('ascii')
+    signs[i] = X_train[index]    
+plot_signs(signs, 5, 4, labels)
+
+
 # Finding/Displaying Distribution of unique elements in train, test and validation arrays
       
 train_unique, counts_train = np.unique(y_train, return_counts=True)
@@ -231,10 +247,43 @@ with tf.Session() as sess:
     print("Test Accuracy = {:.3f}".format(test_accuracy))
    
     
-### Calculate the accuracy for these 5 new images.
+### Calculating the accuracy for these 5 new images in the lines of code below
 
-### For example, if the model predicted 1 out of 5 signs correctly, it's 20% accurate on these new images.
+### Loading images and plotting them
 
-### Print out the top five softmax probabilities for the predictions on the German traffic sign images found on the web. 
-### Feel free to use as many code cells as needed.
+test_images = glob.glob('test_images/test*.jpg')
 
+global X_test_new
+X_test_new = []
+
+for image in test_images:
+    img=mpimg.imread(image)
+    f, (ax) = plt.subplots(1, 1, figsize=(24, 9))
+    f.tight_layout()
+    ax.imshow(img)
+    ax.set_title('New Image', fontsize=25)
+    X_test_new.append(img)
+    
+X_test_new = np.asarray(X_test_new)
+
+### Pre-processing pipeline
+
+#Normalize images
+X_test_new = normalize_image(X_test_new)
+
+#Gray Scale images
+X_test_new = gray_scale(X_test_new)
+
+real_labels = [2, 11, 17, 14, 3]
+
+### Calculating the accuracy for these 5 new images. 
+
+real_labels = [2, 11, 17, 14, 3]
+
+with tf.Session() as sess:
+    print("Testing...")
+    sess.run(tf.global_variables_initializer())
+    train_run_saver = tf.train.import_meta_graph('lenet.meta')
+    train_run_saver.restore(sess, "./lenet")
+    test_accuracy = evaluate(X_test_new, real_labels)
+    print("Test Set Accuracy = {:.3f}".format(test_accuracy))
