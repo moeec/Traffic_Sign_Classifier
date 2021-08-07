@@ -39,7 +39,7 @@ image = X_train[index].squeeze()
 #plt.figure(figsize = (1,1))
 #plt.imshow(image)
 
-EPOCHS = 50
+EPOCHS = 60
 BATCH_SIZE = 20
 
 # Number of training examples
@@ -274,11 +274,10 @@ X_test_new = normalize_image(X_test_new)
 #Gray Scale images
 X_test_new = gray_scale(X_test_new)
 
-real_labels = [2, 11, 17, 14, 3]
 
 ### Calculating the accuracy for these 5 new images. 
 
-real_labels = [2, 11, 17, 14, 3]
+real_labels = [11, 25, 18, 3, 1] 
 
 with tf.Session() as sess:
     print("Testing...")
@@ -287,3 +286,68 @@ with tf.Session() as sess:
     train_run_saver.restore(sess, "./lenet")
     test_accuracy = evaluate(X_test_new, real_labels)
     print("Test Set Accuracy = {:.3f}".format(test_accuracy))
+    
+softmax_logits = tf.nn.softmax(logits)
+top_k = tf.nn.top_k(softmax_logits, k=3)
+
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    saver = tf.train.import_meta_graph('./lenet.meta')
+    saver.restore(sess, "./lenet")
+    my_softmax_logits = sess.run(softmax_logits, feed_dict={x: X_test_new})
+    my_top_k = sess.run(top_k, feed_dict={x: X_test_new})
+
+    
+global softmax_index
+softmax_index1 = []
+softmax_index2 = []
+softmax_index3 = []
+
+index1_1 = np.argwhere(y_valid == my_top_k[1][0][0])[0]
+softmax_index1.append(index1_1)
+index1_2 = np.argwhere(y_valid == my_top_k[1][0][1])[0]
+softmax_index2.append(index1_2)
+index1_3 = np.argwhere(y_valid == my_top_k[1][0][2])[0]
+softmax_index3.append(index1_3)
+
+index2_1 = np.argwhere(y_valid == my_top_k[1][1][0])[0]
+softmax_index1.append(index2_1)
+index2_2 = np.argwhere(y_valid == my_top_k[1][1][1])[0]
+softmax_index2.append(index2_2)
+index2_3 = np.argwhere(y_valid == my_top_k[1][1][2])[0]
+softmax_index3.append(index2_3)
+
+index3_1 = np.argwhere(y_valid == my_top_k[1][2][0])[0]
+softmax_index1.append(index3_1)
+index3_2 = np.argwhere(y_valid == my_top_k[1][2][1])[0]
+softmax_index2.append(index3_2)
+index3_3 = np.argwhere(y_valid == my_top_k[1][2][2])[0]
+softmax_index3.append(index3_3)
+
+index4_1 = np.argwhere(y_valid == my_top_k[1][3][0])[0]
+softmax_index1.append(index4_1)
+index4_2 = np.argwhere(y_valid == my_top_k[1][3][1])[0]
+softmax_index2.append(index4_2)
+index4_3 = np.argwhere(y_valid == my_top_k[1][3][2])[0]
+softmax_index3.append(index4_3)
+
+index5_1 = np.argwhere(y_valid == my_top_k[1][4][0])[0]
+softmax_index1.append(index5_1)
+index5_2 = np.argwhere(y_valid == my_top_k[1][4][1])[0]
+softmax_index2.append(index5_2)
+index5_3 = np.argwhere(y_valid == my_top_k[1][4][2])[0]
+softmax_index3.append(index5_3)
+
+
+for i, image in enumerate(X_test_new):
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(12, 4))
+    fig.suptitle('Softmax')
+    ax1.imshow(X_test_new[i])
+    ax1.set_title('input')
+    ax2.imshow(X_valid[softmax_index1[i]].squeeze(), cmap='gray')
+    ax2.set_title('Top Guess: SignID {} ({:.0f}%)'.format(my_top_k[1][i][0], 100*my_top_k[0][i][0]))
+    ax3.imshow(X_valid[softmax_index2[i]].squeeze(), cmap='gray')
+    ax3.set_title('2nd Guess: SignID {} ({:.0f}%)'.format(my_top_k[1][i][1], 100*my_top_k[0][i][1]))
+    ax4.imshow(X_valid[softmax_index3[i]].squeeze(), cmap='gray')
+    ax4.set_title('3rd Guess: SignID {} ({:.0f}%)'.format(my_top_k[1][i][2], 100*my_top_k[0][i][2]))
